@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "outlet-orm": {
+      "command": "node",
+      "args": [
+        "C:\\wamp64_New\\www\\packages\\outletORMMCP\\index.js"
+      ],
+      "env": {
+        "DB_DRIVER": "mysql",
+        "DB_HOST": "localhost",
+        "DB_PORT": "3306",
+        "DB_DATABASE": "myapp",
+        "DB_USER": "root",
+        "DB_PASSWORD": "secret"
+      }
+    }
+  }
+}

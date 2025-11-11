@@ -1,0 +1,46 @@
+{
+  "name": "outlet-orm-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Outlet ORM - Expose ORM operations, migrations, and query building capabilities",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "outlet-orm-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "orm",
+    "outlet-orm",
+    "database",
+    "mysql",
+    "postgresql",
+    "sqlite",
+    "migrations"
+  ],
+  "author": "omgbwa-yasse",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "outlet-orm": "^2.5.0",
+    "dotenv": "^16.4.5"
+  },
+  "peerDependencies": {
+    "mysql2": "^3.15.2",
+    "pg": "^8.11.0",
+    "sqlite3": "^5.1.6"
+  },
+  "peerDependenciesMeta": {
+    "mysql2": { "optional": true },
+    "pg": { "optional": true },
+    "sqlite3": { "optional": true }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
