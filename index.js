@@ -1321,7 +1321,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               },
               description: 'Model relations configuration',
             },
-            outputPath: { type: 'string', description: 'Output directory (default: "models/")' },
+            outputPath: { type: 'string', description: 'Output directory (default: "src/models/")' },
           },
           required: ['modelName', 'table'],
         },
@@ -1334,7 +1334,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             controllerName: { type: 'string', description: 'Controller class name (e.g., "UserController")' },
             modelName: { type: 'string', description: 'Associated Model class name (e.g., "User")' },
-            outputPath: { type: 'string', description: 'Output directory (default: "controllers/")' },
+            outputPath: { type: 'string', description: 'Output directory (default: "src/controllers/")' },
           },
           required: ['controllerName', 'modelName'],
         },
@@ -1420,7 +1420,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             timestamps: { type: 'boolean', description: 'Add created_at/updated_at columns (default: true)' },
             softDeletes: { type: 'boolean', description: 'Add deleted_at column for soft deletes' },
-            outputPath: { type: 'string', description: 'Output directory (default: "database/migrations/")' },
+            outputPath: { type: 'string', description: 'Output directory (default: "src/database/migrations/")' },
           },
           required: ['migrationName', 'table', 'action'],
         },
@@ -1711,7 +1711,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     switch (name) {
       case 'generate_model': {
-        const outputPath = args.outputPath || 'models';
+        const outputPath = args.outputPath || 'src/models';
         const filePath = join(process.cwd(), outputPath, `${args.modelName}.js`);
         
         // Check if file already exists
@@ -1746,7 +1746,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'generate_controller': {
-        const outputPath = args.outputPath || 'controllers';
+        const outputPath = args.outputPath || 'src/controllers';
         const filePath = join(process.cwd(), outputPath, `${args.controllerName}.js`);
         
         // Check if file already exists
@@ -1773,7 +1773,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'generate_migration': {
-        const outputPath = args.outputPath || 'database/migrations';
+        const outputPath = args.outputPath || 'src/database/migrations';
         
         const result = generateMigrationFile(args.migrationName, {
           table: args.table,
