@@ -54,7 +54,32 @@ npm install
 
 ### Claude Desktop Configuration
 
-Add to `claude_desktop_config.json`:
+You can now use the MCP server with multiple databases! Two configuration approaches:
+
+#### Option 1: Dynamic Connections (Recommended)
+
+No need to set database credentials in config. Connect dynamically during your conversation:
+
+```json
+{
+  "mcpServers": {
+    "outlet-orm": {
+      "command": "node",
+      "args": ["C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"]
+    }
+  }
+}
+```
+
+Then in Claude, connect to any database:
+
+```plaintext
+Connect to my_app database (MySQL at localhost, user: root, password: secret)
+```
+
+#### Option 2: Default Connection (Legacy)
+
+Set a default database connection in environment variables:
 
 ```json
 {
@@ -63,7 +88,6 @@ Add to `claude_desktop_config.json`:
       "command": "node",
       "args": ["C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"],
       "env": {
-        "OUTLET_ORM_ROOT": "C:\\wamp64_New\\www\\packages\\outlet-orm",
         "DB_DRIVER": "mysql",
         "DB_HOST": "localhost",
         "DB_PORT": "3306",
@@ -80,7 +104,6 @@ Add to `claude_desktop_config.json`:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `OUTLET_ORM_ROOT` | Path to Outlet ORM project | **Yes** | - |
 | `DB_DRIVER` | Database driver (`mysql`, `postgres`, `sqlite`) | No* | - |
 | `DB_HOST` | Database host | No* | - |
 | `DB_PORT` | Database port | No* | - |
@@ -88,9 +111,19 @@ Add to `claude_desktop_config.json`:
 | `DB_USER` | Database user | No* | - |
 | `DB_PASSWORD` | Database password | No* | - |
 
-> *Required only for verification tools (verify_model_schema, verify_relations, etc.)
+> *Optional when using dynamic connections via `connect_database` tool
 
 ## 🛠️ Available Tools
+
+### Database Connection Management
+
+| Tool | Description |
+|------|-------------|
+| `connect_database` | Connect to a database with a custom name |
+| `switch_connection` | Switch between active connections |
+| `list_connections` | List all active connections |
+| `disconnect_database` | Disconnect from a specific database |
+| `disconnect_all` | Disconnect all connections |
 
 ### Code Generation
 
@@ -128,6 +161,52 @@ Add to `claude_desktop_config.json`:
 [📖 **Complete CRUD Operations Documentation**](./CRUD_OPERATIONS.md)
 
 ## 📖 Usage Examples
+
+### Connection Management
+
+#### Connect to Multiple Databases
+
+```plaintext
+Connect to my_blog database (MySQL at localhost:3306, user: blog_user, password: blog_pass)
+```
+
+```plaintext
+Connect to my_shop database (PostgreSQL at 192.168.1.100:5432, user: shop_user, password: shop_pass)
+```
+
+```plaintext
+Connect to analytics database (SQLite at /data/analytics.db)
+```
+
+#### Switch Between Connections
+
+```plaintext
+Switch to my_blog connection
+```
+
+```plaintext
+List all active connections
+```
+
+#### Use Specific Connection in Operations
+
+```plaintext
+Query users table from my_blog connection with limit 10
+```
+
+```plaintext
+Create a record in products table on my_shop connection with data: {name: "Widget", price: 29.99}
+```
+
+#### Disconnect Databases
+
+```plaintext
+Disconnect from my_blog database
+```
+
+```plaintext
+Disconnect all databases
+```
 
 ### Generating a Model with Relations
 

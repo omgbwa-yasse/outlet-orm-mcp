@@ -13,7 +13,111 @@ import { existsSync, writeFileSync, mkdirSync, readFileSync, readdirSync } from 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Database connection instance (initialized on demand)
+// Multi-database connection manager
+const connectionManager = {
+  connections: new Map(),
+  activeConnection: null,
+  
+  /**
+   * Add or update a connection
+   */
+  async connect(connectionName, config) {
+    if (!DatabaseConnection) {
+      const outletOrm = await import('outlet-orm');
+      DatabaseConnection = outletOrm.DatabaseConnection;
+    }
+    
+    const connection = new DatabaseConnection(config);
+    await connection.connect();
+    
+    this.connections.set(connectionName, {
+      connection,
+      config,
+      createdAt: Date.now()
+    });
+    
+    // Set as active if it's the first connection
+    if (!this.activeConnection) {
+      this.activeConnection = connectionName;
+    }
+    
+    return connection;
+  },
+  
+  /**
+   * Get a connection by name
+   */
+  getConnection(connectionName = null) {
+    const name = connectionName || this.activeConnection;
+    if (!name) {
+      throw new Error('No active database connection. Please connect first using connect_database tool.');
+    }
+    
+    const conn = this.connections.get(name);
+    if (!conn) {
+      throw new Error(`Connection '${name}' not found. Available connections: ${Array.from(this.connections.keys()).join(', ')}`);
+    }
+    
+    return conn.connection;
+  },
+  
+  /**
+   * Set active connection
+   */
+  setActive(connectionName) {
+    if (!this.connections.has(connectionName)) {
+      throw new Error(`Connection '${connectionName}' not found`);
+    }
+    this.activeConnection = connectionName;
+  },
+  
+  /**
+   * Disconnect a specific connection
+   */
+  async disconnect(connectionName) {
+    const conn = this.connections.get(connectionName);
+    if (conn) {
+      await conn.connection.close();
+      this.connections.delete(connectionName);
+      
+      // If this was the active connection, set another as active
+      if (this.activeConnection === connectionName) {
+        const remaining = Array.from(this.connections.keys());
+        this.activeConnection = remaining.length > 0 ? remaining[0] : null;
+      }
+      
+      clearSchemaCache();
+    }
+  },
+  
+  /**
+   * Disconnect all connections
+   */
+  async disconnectAll() {
+    for (const [name, conn] of this.connections) {
+      await conn.connection.close();
+    }
+    this.connections.clear();
+    this.activeConnection = null;
+    clearSchemaCache();
+  },
+  
+  /**
+   * List all connections
+   */
+  listConnections() {
+    return Array.from(this.connections.entries()).map(([name, conn]) => ({
+      name,
+      database: conn.config.database,
+      driver: conn.config.driver,
+      host: conn.config.host,
+      isActive: name === this.activeConnection,
+      createdAt: new Date(conn.createdAt).toISOString()
+    }));
+  }
+};
+
+// Database connection instance (initialized on demand) - DEPRECATED: use connectionManager
 let dbConnection = null;
 let DatabaseConnection = null;
 
@@ -467,6 +571,21 @@ function generateMigrationFile(migrationName, config = {}) {
 }
 
 /**
+ * Get database connection - uses connectionManager or falls back to legacy method
+ */
+async function getConnection(connectionName = null, dbConfig = {}) {
+  if (connectionName || connectionManager.activeConnection) {
+    // Use named connection if specified or active connection exists
+    return connectionManager.getConnection(connectionName);
+  } else if (dbConfig && Object.keys(dbConfig).length > 0) {
+    // Fall back to creating a connection with dbConfig (backward compatibility)
+    return await initDatabaseConnection(getDatabaseConfig(dbConfig));
+  } else {
+    throw new Error('No database connection available. Please use connect_database tool or provide dbConfig.');
+  }
+}
+
+/**
  * Get database configuration from environment or provided config
  */
 function getDatabaseConfig(dbConfig = {}) {
@@ -481,39 +600,28 @@ function getDatabaseConfig(dbConfig = {}) {
 }
 
 /**
- * Initialize database connection
+ * Initialize database connection (uses connectionManager)
  */
-async function initDatabaseConnection(config = {}) {
+async function initDatabaseConnection(config = {}, connectionName = 'default') {
   try {
-    // Dynamically import DatabaseConnection from outlet-orm
-    if (!DatabaseConnection) {
-      const outletOrm = await import('outlet-orm');
-      DatabaseConnection = outletOrm.DatabaseConnection;
+    // Check if connection already exists
+    if (connectionManager.connections.has(connectionName)) {
+      return connectionManager.getConnection(connectionName);
     }
     
-    if (!dbConnection) {
-      dbConnection = new DatabaseConnection(config);
-      await dbConnection.connect();
-    }
-    return dbConnection;
+    // Create new connection
+    return await connectionManager.connect(connectionName, config);
   } catch (error) {
     throw new Error(`Failed to connect to database: ${error.message}`);
   }
 }
 
 /**
- * Close database connection
+ * Close database connection (DEPRECATED: use disconnect_database tool or connectionManager.disconnect)
  */
 async function closeDatabaseConnection() {
-  if (dbConnection) {
-    try {
-      await dbConnection.close();
-      dbConnection = null;
-      clearSchemaCache();
-    } catch (error) {
-      console.error('Error closing database connection:', error.message);
-    }
-  }
+  console.warn('closeDatabaseConnection is deprecated. Use connectionManager.disconnect() instead.');
+  await connectionManager.disconnectAll();
 }
 
 /**
@@ -956,7 +1064,7 @@ async function checkConsistency(config = {}) {
  */
 async function queryData(config = {}) {
   try {
-    const { table, select, where, orderBy, limit, offset, dbConfig } = config;
+    const { table, select, where, orderBy, limit, offset, connectionName, dbConfig } = config;
     
     if (!table) {
       throw new Error('Table name is required');
@@ -965,8 +1073,8 @@ async function queryData(config = {}) {
     // Validate table name to prevent SQL injection
     validateName(table, 'Table name');
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     // Build query
     let query = `SELECT ${select || '*'} FROM ${table}`;
@@ -1025,7 +1133,7 @@ async function queryData(config = {}) {
  */
 async function createRecord(config = {}) {
   try {
-    const { table, data, dbConfig } = config;
+    const { table, data, connectionName, dbConfig } = config;
     
     if (!table) {
       throw new Error('Table name is required');
@@ -1038,8 +1146,8 @@ async function createRecord(config = {}) {
       throw new Error('Data object is required');
     }
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     // Validate column names
     validateColumnNames(Object.keys(data));
@@ -1076,7 +1184,7 @@ async function createRecord(config = {}) {
  */
 async function updateRecord(config = {}) {
   try {
-    const { table, data, where, dbConfig } = config;
+    const { table, data, where, connectionName, dbConfig } = config;
     
     if (!table) {
       throw new Error('Table name is required');
@@ -1093,8 +1201,8 @@ async function updateRecord(config = {}) {
       throw new Error('WHERE clause is required for safety (use * to update all)');
     }
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     // Validate column names
     validateColumnNames(Object.keys(data));
@@ -1135,7 +1243,7 @@ async function updateRecord(config = {}) {
  */
 async function deleteRecord(config = {}) {
   try {
-    const { table, where, dbConfig } = config;
+    const { table, where, connectionName, dbConfig } = config;
     
     if (!table) {
       throw new Error('Table name is required');
@@ -1148,8 +1256,8 @@ async function deleteRecord(config = {}) {
       throw new Error('WHERE clause is required for safety');
     }
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     // Validate column names
     validateColumnNames(Object.keys(where));
@@ -1183,14 +1291,14 @@ async function deleteRecord(config = {}) {
  */
 async function executeRawSql(config = {}) {
   try {
-    const { sql, params, dbConfig } = config;
+    const { sql, params, connectionName, dbConfig } = config;
     
     if (!sql) {
       throw new Error('SQL query is required');
     }
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     const results = await connection.raw(sql, params || []);
     const data = results[0] || results;
@@ -1216,7 +1324,7 @@ async function executeRawSql(config = {}) {
  */
 async function getTableSchema(config = {}) {
   try {
-    const { table, dbConfig } = config;
+    const { table, connectionName, dbConfig } = config;
     
     if (!table) {
       throw new Error('Table name is required');
@@ -1225,8 +1333,8 @@ async function getTableSchema(config = {}) {
     // Validate table name to prevent SQL injection
     validateName(table, 'Table name');
     
-    // Initialize database connection
-    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    // Get database connection
+    const connection = await getConnection(connectionName, dbConfig);
     
     // Get table schema
     const schemaQuery = `DESCRIBE ${table}`;
@@ -1548,6 +1656,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             orderBy: { type: 'string', description: 'ORDER BY clause (e.g., "created_at DESC")' },
             limit: { type: 'number', description: 'Maximum number of rows to return' },
             offset: { type: 'number', description: 'Number of rows to skip' },
+            connectionName: { 
+              type: 'string', 
+              description: 'Name of the connection to use (uses active connection if not specified)' 
+            },
             dbConfig: {
               type: 'object',
               description: 'Database configuration (optional if using env vars)',
@@ -1698,6 +1810,79 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ['table'],
+        },
+      },
+      
+      // Database Connection Management
+      {
+        name: 'connect_database',
+        description: 'Connect to a database with a custom name. Allows managing multiple database connections simultaneously.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            connectionName: { 
+              type: 'string', 
+              description: 'Unique name for this connection (e.g., "myapp_db", "analytics_db")' 
+            },
+            driver: { 
+              type: 'string', 
+              enum: ['mysql', 'postgres', 'sqlite'],
+              description: 'Database driver' 
+            },
+            host: { type: 'string', description: 'Database host' },
+            port: { type: 'number', description: 'Database port' },
+            database: { type: 'string', description: 'Database name' },
+            user: { type: 'string', description: 'Database user' },
+            password: { type: 'string', description: 'Database password' },
+            setAsActive: { 
+              type: 'boolean', 
+              description: 'Set this connection as the active one (default: true if first connection)' 
+            },
+          },
+          required: ['connectionName', 'driver', 'database'],
+        },
+      },
+      {
+        name: 'switch_connection',
+        description: 'Switch the active database connection to a different one.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            connectionName: { 
+              type: 'string', 
+              description: 'Name of the connection to make active' 
+            },
+          },
+          required: ['connectionName'],
+        },
+      },
+      {
+        name: 'list_connections',
+        description: 'List all active database connections with their details.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'disconnect_database',
+        description: 'Disconnect from a specific database connection.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            connectionName: { 
+              type: 'string', 
+              description: 'Name of the connection to disconnect. If not provided, disconnects the active connection.' 
+            },
+          },
+        },
+      },
+      {
+        name: 'disconnect_all',
+        description: 'Disconnect from all database connections.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
     ],
@@ -1970,6 +2155,157 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             text: JSON.stringify(result, null, 2)
           }],
         };
+      }
+      
+      // Database Connection Management
+      case 'connect_database': {
+        try {
+          const config = {
+            driver: args.driver,
+            host: args.host || 'localhost',
+            port: args.port || (args.driver === 'mysql' ? 3306 : args.driver === 'postgres' ? 5432 : 0),
+            database: args.database,
+            user: args.user,
+            password: args.password
+          };
+          
+          await connectionManager.connect(args.connectionName, config);
+          
+          if (args.setAsActive !== false) {
+            connectionManager.setActive(args.connectionName);
+          }
+          
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: `Successfully connected to database '${args.database}' as '${args.connectionName}'`,
+                connectionName: args.connectionName,
+                database: args.database,
+                driver: args.driver,
+                isActive: connectionManager.activeConnection === args.connectionName,
+                totalConnections: connectionManager.connections.size
+              }, null, 2)
+            }],
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: `Failed to connect: ${error.message}`
+              }, null, 2)
+            }],
+            isError: true
+          };
+        }
+      }
+      
+      case 'switch_connection': {
+        try {
+          connectionManager.setActive(args.connectionName);
+          
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: `Switched to connection '${args.connectionName}'`,
+                activeConnection: args.connectionName
+              }, null, 2)
+            }],
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error.message
+              }, null, 2)
+            }],
+            isError: true
+          };
+        }
+      }
+      
+      case 'list_connections': {
+        const connections = connectionManager.listConnections();
+        
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              activeConnection: connectionManager.activeConnection,
+              totalConnections: connections.length,
+              connections: connections
+            }, null, 2)
+          }],
+        };
+      }
+      
+      case 'disconnect_database': {
+        try {
+          const connectionName = args.connectionName || connectionManager.activeConnection;
+          if (!connectionName) {
+            throw new Error('No connection to disconnect');
+          }
+          
+          await connectionManager.disconnect(connectionName);
+          
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: `Disconnected from '${connectionName}'`,
+                remainingConnections: connectionManager.connections.size,
+                activeConnection: connectionManager.activeConnection
+              }, null, 2)
+            }],
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error.message
+              }, null, 2)
+            }],
+            isError: true
+          };
+        }
+      }
+      
+      case 'disconnect_all': {
+        try {
+          await connectionManager.disconnectAll();
+          
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: 'All database connections have been closed'
+              }, null, 2)
+            }],
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                error: error.message
+              }, null, 2)
+            }],
+            isError: true
+          };
+        }
       }
 
       default:

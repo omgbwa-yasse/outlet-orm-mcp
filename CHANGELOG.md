@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-01-12
+
+### ✨ Features
+
+- **Multi-database connection management**:
+  - Added `connectionManager` system for managing multiple simultaneous database connections
+  - Each connection has a unique name for easy identification
+  - Supports unlimited concurrent connections to different databases
+  - Active connection tracking eliminates need to specify connection name repeatedly
+  - Added 5 new MCP tools:
+    - `connect_database` - Connect to a database with a custom name
+    - `switch_connection` - Switch between active connections
+    - `list_connections` - List all active connections with details
+    - `disconnect_database` - Disconnect from a specific database
+    - `disconnect_all` - Disconnect all connections at once
+
+- **Enhanced CRUD operations**:
+  - All CRUD functions now accept optional `connectionName` parameter
+  - Functions automatically use active connection if not specified
+  - Added `getConnection()` helper with intelligent fallback logic
+  - Backward compatible with legacy `dbConfig` parameter approach
+
+### 📚 Documentation
+
+- Updated README.md with two configuration approaches:
+  - **Option 1: Dynamic Connections (Recommended)** - No database environment variables needed
+  - **Option 2: Default Connection (Legacy)** - Original single-database approach
+- Added comprehensive connection management usage examples
+- Added "Database Connection Management" tools table
+- Changed environment variables documentation to reflect optional status
+
+### 🔧 Improvements
+
+- Connection pooling and lifecycle management
+- Better error handling for connection operations
+- Improved code organization with centralized connection management
+
 ## [2.2.0] - 2025-01-12
 
 ### ✨ Features
