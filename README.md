@@ -94,8 +94,6 @@ npm install sqlite3
 
 Open the configuration file and add:
 
-**Option A: Dynamic Connections (Recommended)**
-
 ```json
 {
   "mcpServers": {
@@ -104,29 +102,6 @@ Open the configuration file and add:
       "args": [
         "/absolute/path/to/outlet-orm-mcp/index.js"
       ]
-    }
-  }
-}
-```
-
-**Option B: With Default Database Connection**
-
-```json
-{
-  "mcpServers": {
-    "outlet-orm": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/outlet-orm-mcp/index.js"
-      ],
-      "env": {
-        "DB_DRIVER": "mysql",
-        "DB_HOST": "localhost",
-        "DB_PORT": "3306",
-        "DB_DATABASE": "myapp",
-        "DB_USER": "root",
-        "DB_PASSWORD": "secret"
-      }
     }
   }
 }
@@ -142,6 +117,8 @@ Replace `/absolute/path/to/outlet-orm-mcp/index.js` with your actual path, like:
 Replace with your actual path, like:
 `/Users/username/projects/outlet-orm-mcp/index.js`
 
+> **Note**: No database credentials needed in config! You'll connect dynamically from Claude.
+
 ### Step 5: Restart Claude Desktop
 
 1. Completely close Claude Desktop
@@ -154,31 +131,13 @@ In Claude Desktop, try:
 
 ```plaintext
 Connect to myapp database (MySQL at localhost:3306, user: root, password: secret)
-List all tables in the database
 ```
-
-Or if using default connection:
 
 ```plaintext
 List all tables in the database
 ```
 
 ✅ **Installation complete!** See [QUICKSTART.md](./QUICKSTART.md) for detailed usage examples.
-
-## ⚙️ Environment Variables Reference
-
-When using **Option B** (default connection) in the installation, you can configure these environment variables:
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `DB_DRIVER` | Database driver (`mysql`, `postgres`, `sqlite`) | No* | - |
-| `DB_HOST` | Database host | No* | - |
-| `DB_PORT` | Database port | No* | - |
-| `DB_DATABASE` | Database name | No* | - |
-| `DB_USER` | Database user | No* | - |
-| `DB_PASSWORD` | Database password | No* | - |
-
-> *Optional when using dynamic connections via `connect_database` tool (Option A)
 
 ## 🛠️ Available Tools
 
