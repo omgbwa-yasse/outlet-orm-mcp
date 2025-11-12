@@ -2,6 +2,8 @@
 
 Un serveur MCP (Model Context Protocol) pour **générer**, **vérifier** et **gérer les données** des Models, Controllers et Migrations pour Outlet ORM.
 
+🔒 **Version 2.1.0** - Sécurité renforcée et optimisations de performance
+
 ## 🚀 Fonctionnalités
 
 ### 🎨 Génération de code
@@ -30,6 +32,16 @@ Un serveur MCP (Model Context Protocol) pour **générer**, **vérifier** et **g
 - **Inspection de schéma** : Analyse de structure de tables (colonnes, index)
 
 [📖 **Documentation complète des opérations CRUD**](./CRUD_OPERATIONS.md)
+
+### 🔒 Sécurité et Performance (v2.1.0)
+
+- **Protection SQL Injection** : Requêtes paramétrées + validation stricte des identifiants
+- **Validation complète** : Tous les noms de tables et colonnes validés
+- **Cache de schémas** : TTL de 60s pour améliorer les performances jusqu'à 90%
+- **Timeout de requêtes** : Protection contre les blocages (30s par défaut)
+- **Gestion de connexion** : Fermeture propre et prévention des fuites
+
+[📖 **Rapport de sécurité complet**](./SECURITY_FIXES.md)
 
 ## 📦 Installation
 

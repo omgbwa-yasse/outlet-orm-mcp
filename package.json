@@ -1,7 +1,7 @@
 {
   "name": "outlet-orm-mcp",
-  "version": "1.0.0",
-  "description": "Model Context Protocol server for Outlet ORM - Expose ORM operations, migrations, and query building capabilities",
+  "version": "2.1.0",
+  "description": "Model Context Protocol server for Outlet ORM - Expose ORM operations, migrations, and query building capabilities with enhanced security",
   "main": "index.js",
   "type": "module",
   "bin": {

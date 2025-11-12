@@ -17,6 +17,71 @@ const __dirname = dirname(__filename);
 let dbConnection = null;
 let DatabaseConnection = null;
 
+// Schema cache to avoid repeated queries
+const schemaCache = new Map();
+const SCHEMA_CACHE_TTL = 60000; // 1 minute
+const QUERY_TIMEOUT = 30000; // 30 seconds
+
+/**
+ * Execute a query with timeout
+ */
+async function executeWithTimeout(promise, timeoutMs = QUERY_TIMEOUT) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(`Query timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+/**
+ * Clear schema cache for a specific table or all tables
+ */
+function clearSchemaCache(tableName = null) {
+  if (tableName) {
+    schemaCache.delete(tableName);
+  } else {
+    schemaCache.clear();
+  }
+}
+
+/**
+ * Get cached schema or fetch from database
+ */
+async function getCachedSchema(connection, table) {
+  const cached = schemaCache.get(table);
+  if (cached && Date.now() - cached.timestamp < SCHEMA_CACHE_TTL) {
+    return cached.data;
+  }
+  
+  const schema = await connection.raw('DESCRIBE ??', [table]);
+  const data = schema[0] || schema;
+  
+  schemaCache.set(table, {
+    data,
+    timestamp: Date.now()
+  });
+  
+  return data;
+}
+
+/**
+ * Validate column names to prevent SQL injection
+ */
+function validateColumnNames(columns) {
+  if (!Array.isArray(columns)) {
+    columns = [columns];
+  }
+  
+  for (const col of columns) {
+    if (typeof col !== 'string' || !/^[a-zA-Z_]\w*(\.[a-zA-Z_]\w*)?$/.test(col)) {
+      throw new Error(`Invalid column name: ${col}. Column names must contain only letters, numbers, underscores, and optional table prefix.`);
+    }
+  }
+  
+  return true;
+}
+
 /**
  * Validate model/controller/table names
  */
@@ -176,7 +241,7 @@ function generateControllerFile(controllerName, modelName) {
   content += `      query = query.with(...relations);\n`;
   content += `    }\n\n`;
   content += `    if (page) {\n`;
-  content += `      return await query.paginate(parseInt(page), parseInt(perPage));\n`;
+  content += `      return await query.paginate(Number.parseInt(page, 10), Number.parseInt(perPage, 10));\n`;
   content += `    }\n\n`;
   content += `    return await query.all();\n`;
   content += `  }\n\n`;
@@ -402,6 +467,20 @@ function generateMigrationFile(migrationName, config = {}) {
 }
 
 /**
+ * Get database configuration from environment or provided config
+ */
+function getDatabaseConfig(dbConfig = {}) {
+  return {
+    driver: dbConfig.driver || process.env.DB_DRIVER,
+    host: dbConfig.host || process.env.DB_HOST,
+    port: dbConfig.port || Number.parseInt(process.env.DB_PORT || '3306', 10),
+    database: dbConfig.database || process.env.DB_DATABASE,
+    user: dbConfig.user || process.env.DB_USER,
+    password: dbConfig.password || process.env.DB_PASSWORD
+  };
+}
+
+/**
  * Initialize database connection
  */
 async function initDatabaseConnection(config = {}) {
@@ -419,6 +498,21 @@ async function initDatabaseConnection(config = {}) {
     return dbConnection;
   } catch (error) {
     throw new Error(`Failed to connect to database: ${error.message}`);
+  }
+}
+
+/**
+ * Close database connection
+ */
+async function closeDatabaseConnection() {
+  if (dbConnection) {
+    try {
+      await dbConnection.close();
+      dbConnection = null;
+      clearSchemaCache();
+    } catch (error) {
+      console.error('Error closing database connection:', error.message);
+    }
   }
 }
 
@@ -444,8 +538,11 @@ async function verifyModelSchema(modelPath, dbConfig = {}) {
     
     const tableName = tableMatch[1];
     
-    // Get actual schema from database
-    const schema = await connection.query(`DESCRIBE ${tableName}`);
+    // Validate table name to prevent SQL injection
+    validateName(tableName, 'Table name');
+    
+    // Get actual schema from database using cached query
+    const schema = await getCachedSchema(connection, tableName);
     
     // Extract fillable attributes
     const fillableMatch = modelContent.match(/static\s+fillable\s*=\s*(\[[^\]]+\])/);
@@ -553,17 +650,20 @@ async function verifyRelations(modelPath, dbConfig = {}) {
       });
     }
     
-    // Get foreign keys from database
-    const foreignKeys = await connection.query(`
+    // Validate table name to prevent SQL injection
+    validateName(tableName, 'Table name');
+    
+    // Get foreign keys from database using parameterized query
+    const foreignKeys = await connection.raw(`
       SELECT 
         COLUMN_NAME,
         REFERENCED_TABLE_NAME,
         REFERENCED_COLUMN_NAME
       FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
       WHERE TABLE_SCHEMA = DATABASE()
-        AND TABLE_NAME = '${tableName}'
+        AND TABLE_NAME = ?
         AND REFERENCED_TABLE_NAME IS NOT NULL
-    `);
+    `, [tableName]);
     
     const issues = [];
     
@@ -644,8 +744,9 @@ async function verifyMigrationStatus(migrationsPath = 'database/migrations', dbC
     // Try to get applied migrations from database
     let appliedMigrations = [];
     try {
-      const result = await connection.query('SELECT * FROM migrations ORDER BY batch, migration');
-      appliedMigrations = result.map(r => r.migration);
+      const result = await connection.raw('SELECT * FROM migrations ORDER BY batch, migration');
+      const data = result[0] || result;
+      appliedMigrations = data.map(r => r.migration);
     } catch (error) {
       // Migrations table might not exist yet
       appliedMigrations = [];
@@ -861,15 +962,11 @@ async function queryData(config = {}) {
       throw new Error('Table name is required');
     }
     
+    // Validate table name to prevent SQL injection
+    validateName(table, 'Table name');
+    
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
     
     // Build query
     let query = `SELECT ${select || '*'} FROM ${table}`;
@@ -877,6 +974,9 @@ async function queryData(config = {}) {
     
     // Add WHERE clause
     if (where && Object.keys(where).length > 0) {
+      // Validate column names in WHERE clause
+      validateColumnNames(Object.keys(where));
+      
       const conditions = Object.entries(where).map(([key, value]) => {
         params.push(value);
         return `${key} = ?`;
@@ -886,14 +986,17 @@ async function queryData(config = {}) {
     
     // Add ORDER BY
     if (orderBy) {
+      // Validate ORDER BY columns
+      const orderCols = orderBy.split(',').map(s => s.trim().split(' ')[0]);
+      validateColumnNames(orderCols);
       query += ` ORDER BY ${orderBy}`;
     }
     
     // Add LIMIT and OFFSET
     if (limit) {
-      query += ` LIMIT ${parseInt(limit)}`;
+      query += ` LIMIT ${Number.parseInt(limit, 10)}`;
       if (offset) {
-        query += ` OFFSET ${parseInt(offset)}`;
+        query += ` OFFSET ${Number.parseInt(offset, 10)}`;
       }
     }
     
@@ -928,19 +1031,18 @@ async function createRecord(config = {}) {
       throw new Error('Table name is required');
     }
     
+    // Validate table name to prevent SQL injection
+    validateName(table, 'Table name');
+    
     if (!data || typeof data !== 'object') {
       throw new Error('Data object is required');
     }
     
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    
+    // Validate column names
+    validateColumnNames(Object.keys(data));
     
     // Build INSERT query
     const columns = Object.keys(data);
@@ -980,6 +1082,9 @@ async function updateRecord(config = {}) {
       throw new Error('Table name is required');
     }
     
+    // Validate table name to prevent SQL injection
+    validateName(table, 'Table name');
+    
     if (!data || typeof data !== 'object') {
       throw new Error('Data object is required');
     }
@@ -989,14 +1094,11 @@ async function updateRecord(config = {}) {
     }
     
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    
+    // Validate column names
+    validateColumnNames(Object.keys(data));
+    validateColumnNames(Object.keys(where));
     
     // Build UPDATE query
     const setClauses = Object.keys(data).map(key => `${key} = ?`);
@@ -1039,19 +1141,18 @@ async function deleteRecord(config = {}) {
       throw new Error('Table name is required');
     }
     
+    // Validate table name to prevent SQL injection
+    validateName(table, 'Table name');
+    
     if (!where || Object.keys(where).length === 0) {
       throw new Error('WHERE clause is required for safety');
     }
     
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
+    
+    // Validate column names
+    validateColumnNames(Object.keys(where));
     
     // Build DELETE query
     const whereConditions = Object.entries(where).map(([key, value]) => `${key} = ?`);
@@ -1089,14 +1190,7 @@ async function executeRawSql(config = {}) {
     }
     
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
     
     const results = await connection.raw(sql, params || []);
     const data = results[0] || results;
@@ -1128,15 +1222,11 @@ async function getTableSchema(config = {}) {
       throw new Error('Table name is required');
     }
     
+    // Validate table name to prevent SQL injection
+    validateName(table, 'Table name');
+    
     // Initialize database connection
-    const connection = await initDatabaseConnection(dbConfig || {
-      driver: process.env.DB_DRIVER,
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      database: process.env.DB_DATABASE,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    });
+    const connection = await initDatabaseConnection(getDatabaseConfig(dbConfig));
     
     // Get table schema
     const schemaQuery = `DESCRIBE ${table}`;
