@@ -193,7 +193,7 @@ Analyze data distribution to plan a migration
 ## 📂 Generated File Structure
 
 ```plaintext
-outlet-orm/
+your-project/
 └── src/
     ├── models/
     │   ├── User.js
