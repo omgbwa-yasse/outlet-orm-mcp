@@ -45,48 +45,80 @@ A Model Context Protocol (MCP) server for **generating**, **verifying**, and **m
 
 ## 📦 Installation
 
+### Prerequisites
+
+- **Node.js** >= 18.0.0
+- **npm** or **yarn**
+- **Claude Desktop** (for MCP server integration)
+
+### Step 1: Clone or Download
+
 ```bash
+# Clone the repository
+git clone https://github.com/omgbwa-yasse/outlet-orm-mcp.git
 cd outlet-orm-mcp
+```
+
+Or download and extract the ZIP file.
+
+### Step 2: Install Dependencies
+
+```bash
 npm install
 ```
 
-## ⚙️ Configuration
+### Step 3: Install Database Driver
 
-### Claude Desktop Configuration
+Install the driver for your database:
 
-You can now use the MCP server with multiple databases! Two configuration approaches:
+```bash
+# For MySQL/MariaDB
+npm install mysql2
 
-#### Option 1: Dynamic Connections (Recommended)
+# For PostgreSQL
+npm install pg
 
-No need to set database credentials in config. Connect dynamically during your conversation:
+# For SQLite
+npm install sqlite3
+```
+
+### Step 4: Configure Claude Desktop
+
+#### Locate Configuration File
+
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+#### Add MCP Server Configuration
+
+Open the configuration file and add:
+
+**Option A: Dynamic Connections (Recommended)**
 
 ```json
 {
   "mcpServers": {
     "outlet-orm": {
       "command": "node",
-      "args": ["C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"]
+      "args": [
+        "/absolute/path/to/outlet-orm-mcp/index.js"
+      ]
     }
   }
 }
 ```
 
-Then in Claude, connect to any database:
-
-```plaintext
-Connect to my_app database (MySQL at localhost, user: root, password: secret)
-```
-
-#### Option 2: Default Connection (Legacy)
-
-Set a default database connection in environment variables:
+**Option B: With Default Database Connection**
 
 ```json
 {
   "mcpServers": {
     "outlet-orm": {
       "command": "node",
-      "args": ["C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"],
+      "args": [
+        "/absolute/path/to/outlet-orm-mcp/index.js"
+      ],
       "env": {
         "DB_DRIVER": "mysql",
         "DB_HOST": "localhost",
@@ -100,7 +132,42 @@ Set a default database connection in environment variables:
 }
 ```
 
-### Environment Variables
+**Windows Example:**
+
+Replace `/absolute/path/to/outlet-orm-mcp/index.js` with your actual path, like:
+`C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js`
+
+**macOS/Linux Example:**
+
+Replace with your actual path, like:
+`/Users/username/projects/outlet-orm-mcp/index.js`
+
+### Step 5: Restart Claude Desktop
+
+1. Completely close Claude Desktop
+2. Reopen the application
+3. Look for the 🔌 icon to confirm the MCP server is connected
+
+### Step 6: Test the Connection
+
+In Claude Desktop, try:
+
+```plaintext
+Connect to myapp database (MySQL at localhost:3306, user: root, password: secret)
+List all tables in the database
+```
+
+Or if using default connection:
+
+```plaintext
+List all tables in the database
+```
+
+✅ **Installation complete!** See [QUICKSTART.md](./QUICKSTART.md) for detailed usage examples.
+
+## ⚙️ Environment Variables Reference
+
+When using **Option B** (default connection) in the installation, you can configure these environment variables:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
@@ -111,7 +178,7 @@ Set a default database connection in environment variables:
 | `DB_USER` | Database user | No* | - |
 | `DB_PASSWORD` | Database password | No* | - |
 
-> *Optional when using dynamic connections via `connect_database` tool
+> *Optional when using dynamic connections via `connect_database` tool (Option A)
 
 ## 🛠️ Available Tools
 
