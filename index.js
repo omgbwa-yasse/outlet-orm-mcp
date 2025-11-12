@@ -233,7 +233,7 @@ function generateModelFile(modelName, config = {}) {
 
   const className = modelName.charAt(0).toUpperCase() + modelName.slice(1);
   
-  let content = `const { Model } = require('outlet-orm');\n\n`;
+  let content = `import { Model } from 'outlet-orm';\n`;
   
   // Imports pour les relations
   const relatedModels = new Set();
@@ -244,12 +244,12 @@ function generateModelFile(modelName, config = {}) {
   }
   
   for (const model of relatedModels) {
-    content += `const ${model} = require('./${model}');\n`;
+    content += `import ${model} from './${model}.js';\n`;
   }
   
   if (relatedModels.size > 0) content += '\n';
   
-  content += `class ${className} extends Model {\n`;
+  content += `export default class ${className} extends Model {\n`;
   content += `  static table = '${table}';\n`;
   content += `  static primaryKey = '${primaryKey}';\n`;
   content += `  static timestamps = ${timestamps};\n\n`;
@@ -314,7 +314,7 @@ function generateModelFile(modelName, config = {}) {
     content += `  }\n\n`;
   }
   
-  content += `}\n\nmodule.exports = ${className};\n`;
+  content += `}\n`;
   
   return content;
 }
@@ -329,7 +329,7 @@ function generateControllerFile(controllerName, modelName) {
   const className = controllerName.charAt(0).toUpperCase() + controllerName.slice(1) + 'Controller';
   const ModelClass = modelName.charAt(0).toUpperCase() + modelName.slice(1);
   
-  let content = `const ${ModelClass} = require('../models/${ModelClass}');\n\n`;
+  let content = `import ${ModelClass} from '../models/${ModelClass}.js';\n\n`;
   content += `class ${className} {\n\n`;
   
   // Index
@@ -414,7 +414,7 @@ function generateControllerFile(controllerName, modelName) {
   content += `    return { success: true, message: 'Record deleted successfully' };\n`;
   content += `  }\n`;
   
-  content += `}\n\nmodule.exports = new ${className}();\n`;
+  content += `}\n\nexport default new ${className}();\n`;
   
   return content;
 }
@@ -446,7 +446,7 @@ function generateMigrationFile(migrationName, config = {}) {
   
   const fileName = `${timestamp}_${migrationName}.js`;
   
-  let content = `const { Schema } = require('outlet-orm/lib/Schema/Schema');\n\n`;
+  let content = `import { Schema } from 'outlet-orm/lib/Schema/Schema.js';\n\n`;
   content += `class ${migrationName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')} {\n`;
   content += `  constructor(connection) {\n`;
   content += `    this.schema = new Schema(connection);\n`;
@@ -564,7 +564,7 @@ function generateMigrationFile(migrationName, config = {}) {
   }
   
   content += `  }\n`;
-  content += `}\n\nmodule.exports = ${migrationName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')};\n`;
+  content += `}\n\nexport default ${migrationName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')};\n`;
   
   // Return both filename and content for the handler to use
   return { fileName, content };

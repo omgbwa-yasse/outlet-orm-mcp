@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.0] - 2025-01-12
+## [2.3.0] - 2025-11-12
 
 ### ✨ Features
 
@@ -27,7 +27,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `getConnection()` helper with intelligent fallback logic
   - Backward compatible with legacy `dbConfig` parameter approach
 
-### 📚 Documentation
+### � Improvements
+
+- **ES6 Module Syntax**:
+  - All code generators now use ES6 `import`/`export` instead of CommonJS
+  - Model generator uses `import { Model } from 'outlet-orm'`
+  - Relations now import actual classes: `import Post from './Post.js'`
+  - Controller generator uses `import` for model classes
+  - Migration generator uses `import { Schema }` syntax
+  - Consistent with `"type": "module"` in package.json
+
+### �📚 Documentation
 
 - Updated README.md with two configuration approaches:
   - **Option 1: Dynamic Connections (Recommended)** - No database environment variables needed
@@ -35,12 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added comprehensive connection management usage examples
 - Added "Database Connection Management" tools table
 - Changed environment variables documentation to reflect optional status
-
-### 🔧 Improvements
-
-- Connection pooling and lifecycle management
-- Better error handling for connection operations
-- Improved code organization with centralized connection management
 
 ## [2.2.0] - 2025-01-12
 
