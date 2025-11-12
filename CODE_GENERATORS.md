@@ -43,7 +43,7 @@ Generate a complete Model file by inspecting an existing database table. Automat
 | Parameter | Type | Required | Description | Default | Example |
 |-----------|------|----------|-------------|---------|---------|
 | `tableName` | string | Yes | Database table name to generate from | - | `"users"` |
-| `outputPath` | string | No | Output path for Model file | `"models/{ModelName}.js"` | `"src/models/User.js"` |
+| `outputPath` | string | No | Output path for Model file | `"src/models/{ModelName}.js"` | `"src/models/User.js"` |
 | `dbConfig` | object | No | Database configuration override | - | See DB Config |
 
 #### What It Generates
@@ -73,7 +73,7 @@ Translates to:
 }
 ```
 
-Output file: `models/User.js`
+Output file: `src/models/User.js`
 
 **Custom output path:**
 
@@ -118,7 +118,7 @@ CREATE TABLE users (
 **Generated Model:**
 
 ```javascript
-// models/User.js
+// src/models/User.js
 import { Model } from 'outlet-orm';
 
 class User extends Model {
@@ -188,8 +188,8 @@ class Post extends Model {
 ```json
 {
   "success": true,
-  "message": "Model file generated successfully at models/User.js",
-  "filePath": "C:\\path\\to\\models\\User.js",
+  "message": "Model file generated successfully at src/models/User.js",
+  "filePath": "C:\\path\\to\\src\\models\\User.js",
   "modelName": "User",
   "tableName": "users",
   "properties": {
@@ -238,7 +238,7 @@ Generate a complete Controller file with all standard CRUD operations (index, sh
 | Parameter | Type | Required | Description | Default | Example |
 |-----------|------|----------|-------------|---------|---------|
 | `modelName` | string | Yes | Name of Model class (PascalCase) | - | `"User"` |
-| `outputPath` | string | No | Output path for Controller file | `"controllers/{ModelName}Controller.js"` | `"src/controllers/UserController.js"` |
+| `outputPath` | string | No | Output path for Controller file | `"src/controllers/{ModelName}Controller.js"` | `"src/controllers/UserController.js"` |
 
 #### What It Generates
 
@@ -278,7 +278,7 @@ Translates to:
 }
 ```
 
-Output file: `controllers/UserController.js`
+Output file: `src/controllers/UserController.js`
 
 **Custom output path:**
 
@@ -296,7 +296,7 @@ Output file: `controllers/UserController.js`
 **Generated Controller:**
 
 ```javascript
-// controllers/UserController.js
+// src/controllers/UserController.js
 import User from '../models/User.js';
 
 class UserController {
@@ -482,8 +482,8 @@ export default UserController;
 ```json
 {
   "success": true,
-  "message": "Controller file generated successfully at controllers/UserController.js",
-  "filePath": "C:\\path\\to\\controllers\\UserController.js",
+  "message": "Controller file generated successfully at src/controllers/UserController.js",
+  "filePath": "C:\\path\\to\\src\\controllers\\UserController.js",
   "controllerName": "UserController",
   "modelName": "User",
   "methods": [
@@ -573,7 +573,7 @@ Generate a Migration file for creating or modifying database tables. Supports ta
 | `tableName` | string | Yes | Target table name | - | `"users"` |
 | `columns` | array | No | Column definitions (see below) | `[]` | See examples |
 | `action` | string | No | Migration action type | `"create"` | `"create"` or `"modify"` |
-| `outputPath` | string | No | Output directory for migration | `"database/migrations"` | `"db/migrations"` |
+| `outputPath` | string | No | Output directory for migration | `"src/database/migrations"` | `"db/migrations"` |
 
 #### Column Definition Object
 
@@ -752,7 +752,7 @@ Translates to:
 **Generated Migration:**
 
 ```javascript
-// database/migrations/20250112_153045_create_users_table.js
+// src/database/migrations/20250112_153045_create_users_table.js
 export async function up(queryInterface, DataTypes) {
   await queryInterface.createTable('users', {
     id: {
@@ -799,7 +799,7 @@ This ensures:
 {
   "success": true,
   "message": "Migration file generated successfully",
-  "filePath": "C:\\path\\to\\database\\migrations\\20250112_153045_create_users_table.js",
+  "filePath": "C:\\path\\to\\src\\database\\migrations\\20250112_153045_create_users_table.js",
   "migrationName": "create_users_table",
   "tableName": "users",
   "action": "create",
@@ -913,18 +913,18 @@ Start with existing database, generate everything:
 1. Generate Model from table
    → generate_model_file
    Input: { tableName: "users" }
-   Output: models/User.js
+   Output: src/models/User.js
 
 2. Generate Controller for Model
    → generate_controller_file
    Input: { modelName: "User" }
-   Output: controllers/UserController.js
+   Output: src/controllers/UserController.js
 
 3. Verify consistency
    → check_consistency
    Input: { 
-     modelPath: "models/User.js",
-     controllerPath: "controllers/UserController.js"
+     modelPath: "src/models/User.js",
+     controllerPath: "src/controllers/UserController.js"
    }
 ```
 
@@ -944,7 +944,7 @@ Start with requirements, generate everything:
        { name: "price", type: "decimal" }
      ]
    }
-   Output: database/migrations/20250112_153045_create_products_table.js
+   Output: src/database/migrations/20250112_153045_create_products_table.js
 
 2. Run migration
    → (external migration tool)
@@ -952,12 +952,12 @@ Start with requirements, generate everything:
 3. Generate Model from new table
    → generate_model_file
    Input: { tableName: "products" }
-   Output: models/Product.js
+   Output: src/models/Product.js
 
 4. Generate Controller
    → generate_controller_file
    Input: { modelName: "Product" }
-   Output: controllers/ProductController.js
+   Output: src/controllers/ProductController.js
 ```
 
 ### Workflow 3: Complete CRUD Module

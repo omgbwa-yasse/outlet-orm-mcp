@@ -194,17 +194,20 @@ Analyze data distribution to plan a migration
 
 ```plaintext
 outlet-orm/
-├── models/
-│   ├── User.js
-│   └── Post.js
-├── controllers/
-│   ├── UserController.js
-│   └── PostController.js
-└── database/
-    └── migrations/
-        ├── 20240315_120000_create_users_table.js
-        └── 20240315_120500_create_posts_table.js
+└── src/
+    ├── models/
+    │   ├── User.js
+    │   └── Post.js
+    ├── controllers/
+    │   ├── UserController.js
+    │   └── PostController.js
+    └── database/
+        └── migrations/
+            ├── 20240315_120000_create_users_table.js
+            └── 20240315_120500_create_posts_table.js
 ```
+
+> **Note**: All generated files are placed in the `src/` directory following modern JavaScript best practices. You can customize the output path using the `outputPath` parameter.
 
 ## 🔍 Advanced Features
 
@@ -249,8 +252,8 @@ Verify your connection credentials in the DB_* environment variables.
 
 ### Generation Issues
 
-- Verify that the `models/`, `controllers/`, and `database/migrations/` directories exist
-- Check write permissions
+- Verify that the `src/models/`, `src/controllers/`, and `src/database/migrations/` directories will be created automatically
+- Check write permissions in the project root directory
 - Consult logs for more details
 
 ## 📚 Documentation

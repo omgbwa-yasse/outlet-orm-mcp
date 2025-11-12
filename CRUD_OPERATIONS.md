@@ -769,7 +769,7 @@ Schema queries are cached for 60 seconds to:
    → generate_model with columns from schema
 
 4. Verify Model matches database
-   → verify_model_schema({ modelPath: "models/User.js" })
+   → verify_model_schema({ modelPath: "src/models/User.js" })
 ```
 
 ### Workflow 2: Create Test Data

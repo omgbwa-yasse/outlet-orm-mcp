@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-01-12
+
+### ✨ Features
+
+- **Modern JavaScript project structure**:
+  - Changed default output paths to follow modern JavaScript best practices
+  - Models now generate to `src/models/` (was `models/`)
+  - Controllers now generate to `src/controllers/` (was `controllers/`)
+  - Migrations now generate to `src/database/migrations/` (was `database/migrations/`)
+  - All paths can still be customized via `outputPath` parameter
+
+### 📚 Documentation
+
+- Updated README.md with new default directory structure
+- Updated CODE_GENERATORS.md with all new paths in examples
+- Updated CRUD_OPERATIONS.md with corrected model paths
+- Updated all documentation to reflect src/ directory convention
+- Added note about automatic directory creation
+
 ## [2.1.0] - 2025-01-11
 
 ### 🔒 Security Fixes
