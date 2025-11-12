@@ -18,7 +18,21 @@ npm install sqlite3     # For SQLite
 
 ## Step 2: Configuration
 
-### Option A: Use a .env file (Recommended)
+### Option A: Dynamic Connections (Recommended - New in v2.3.0)
+
+No configuration needed! Connect to databases directly from Claude:
+
+```plaintext
+Connect to myapp database (MySQL at localhost:3306, user: root, password: secret)
+```
+
+This approach allows you to work with multiple databases simultaneously without any configuration file changes.
+
+### Option B: Default Connection (Legacy)
+
+Configure a default database connection that will be used automatically.
+
+#### Using .env file
 
 ```bash
 cp .env.example .env
@@ -35,9 +49,9 @@ DB_USER=root
 DB_PASSWORD=secret
 ```
 
-### Option B: Direct Configuration in Claude Desktop
+#### Or via Claude Desktop Config
 
-No need for `.env`, environment variables will be defined in Claude's config.
+Add `env` section in Claude's configuration (see Step 3).
 
 ## Step 3: Claude Desktop Configuration
 
@@ -64,6 +78,23 @@ Open the file and add:
 ```
 
 **Windows Example:**
+
+```json
+{
+  "mcpServers": {
+    "outlet-orm": {
+      "command": "node",
+      "args": [
+        "C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"
+      ]
+    }
+  }
+}
+```
+
+> **Note**: With dynamic connections (Option A), you don't need the `env` section. Just omit it and connect from Claude as needed.
+
+**Windows Example with Default Connection (Legacy):**
 
 ```json
 {
@@ -101,8 +132,6 @@ Open the file and add:
 }
 ```
 
-**Note**: If you use a `.env` file, you don't need the `env` section in the config.
-
 ## Step 4: Restart Claude Desktop
 
 1. Completely close Claude Desktop
@@ -116,7 +145,22 @@ Try these commands in Claude Desktop:
 ### Connection Test
 
 ```text
+Connect to myapp database (MySQL at localhost:3306, user: root, password: secret)
+```
+
+Or if using default connection:
+
+```text
 Connect to the database
+```
+
+### Multi-Database Usage (v2.3.0+)
+
+```text
+Connect to blog_db database (MySQL at localhost, user: blog_user, password: pass1)
+Connect to shop_db database (PostgreSQL at 192.168.1.100:5432, user: shop_user, password: pass2)
+List all active connections
+Switch to blog_db connection
 ```
 
 ### List Tables
@@ -226,9 +270,9 @@ This will open a web interface to test tools manually.
 
 For help:
 
-- GitHub Issues: https://github.com/omgbwa-yasse/outlet-orm/issues
-- Outlet ORM Documentation: https://github.com/omgbwa-yasse/outlet-orm
-- MCP Documentation: https://modelcontextprotocol.io
+- [GitHub Issues](https://github.com/omgbwa-yasse/outlet-orm-mcp/issues)
+- [Outlet ORM Documentation](https://github.com/omgbwa-yasse/outlet-orm)
+- [MCP Documentation](https://modelcontextprotocol.io)
 
 ## Next Steps
 

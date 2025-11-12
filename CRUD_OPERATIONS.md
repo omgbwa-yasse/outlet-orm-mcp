@@ -7,6 +7,7 @@ This guide provides comprehensive documentation for the 6 CRUD (Create, Read, Up
 ## 🎯 Overview
 
 The CRUD tools allow you to:
+
 - Query data with filters, sorting, and pagination
 - Create new records with automatic ID return
 - Update existing records with mandatory WHERE clauses
@@ -15,11 +16,23 @@ The CRUD tools allow you to:
 - Inspect table schemas and structures
 
 **Security Features:**
+
 - ✅ Parameterized queries (SQL injection protection)
 - ✅ Table name validation
 - ✅ Column name validation
 - ✅ Mandatory WHERE clauses for UPDATE/DELETE
 - ✅ Query timeout protection (30s)
+
+**Multi-Database Support (v2.3.0+):**
+
+All CRUD operations support the optional `connectionName` parameter, allowing you to work with multiple databases simultaneously:
+
+```plaintext
+Query users from my_blog connection
+Create a product in my_shop connection with data: {name: "Widget", price: 29.99}
+```
+
+If `connectionName` is not specified, the active connection or default configuration is used.
 
 ---
 
@@ -39,7 +52,8 @@ Query data from a database table with optional filters, sorting, and pagination.
   "orderBy": "string (optional)",
   "limit": "number (optional)",
   "offset": "number (optional)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -53,7 +67,8 @@ Query data from a database table with optional filters, sorting, and pagination.
 | `orderBy` | string | No | ORDER BY clause | `"created_at DESC"` |
 | `limit` | number | No | Maximum rows to return | `10` |
 | `offset` | number | No | Number of rows to skip | `20` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
@@ -153,7 +168,8 @@ Insert a new record into a database table and return the generated ID.
 {
   "table": "string (required)",
   "data": "object (required)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -163,7 +179,8 @@ Insert a new record into a database table and return the generated ID.
 |-----------|------|----------|-------------|---------|
 | `table` | string | Yes | Table name | `"users"` |
 | `data` | object | Yes | Data to insert (column: value pairs) | `{"name": "John", "email": "john@example.com"}` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
@@ -243,7 +260,8 @@ Update existing records in a table. **Requires WHERE clause for safety.**
   "table": "string (required)",
   "data": "object (required)",
   "where": "object (required)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -254,7 +272,8 @@ Update existing records in a table. **Requires WHERE clause for safety.**
 | `table` | string | Yes | Table name | `"users"` |
 | `data` | object | Yes | Data to update (column: value pairs) | `{"status": "inactive"}` |
 | `where` | object | Yes | WHERE conditions (prevents accidental mass updates) | `{"id": 5}` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
@@ -341,7 +360,8 @@ Delete records from a table. **Requires WHERE clause for safety.**
 {
   "table": "string (required)",
   "where": "object (required)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -351,7 +371,8 @@ Delete records from a table. **Requires WHERE clause for safety.**
 |-----------|------|----------|-------------|---------|
 | `table` | string | Yes | Table name | `"users"` |
 | `where` | object | Yes | WHERE conditions (prevents accidental mass deletion) | `{"id": 5}` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
@@ -422,7 +443,8 @@ Execute a raw SQL query for complex operations. **Use with caution.**
 {
   "sql": "string (required)",
   "params": "array (optional)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -432,7 +454,8 @@ Execute a raw SQL query for complex operations. **Use with caution.**
 |-----------|------|----------|-------------|---------|
 | `sql` | string | Yes | Raw SQL query to execute | `"SELECT * FROM users WHERE id = ?"` |
 | `params` | array | No | Query parameters for prepared statements | `[5]` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
@@ -536,7 +559,8 @@ Get detailed schema information about a table including columns, types, and inde
 ```json
 {
   "table": "string (required)",
-  "dbConfig": "object (optional)"
+  "connectionName": "string (optional, v2.3.0+)",
+  "dbConfig": "object (optional, legacy)"
 }
 ```
 
@@ -545,7 +569,8 @@ Get detailed schema information about a table including columns, types, and inde
 | Parameter | Type | Required | Description | Example |
 |-----------|------|----------|-------------|---------|
 | `table` | string | Yes | Table name to inspect | `"users"` |
-| `dbConfig` | object | No | Database configuration override | See DB Config |
+| `connectionName` | string | No | Named connection to use (v2.3.0+) | `"my_blog"` |
+| `dbConfig` | object | No | Database configuration override (legacy) | See DB Config |
 
 #### Examples
 
