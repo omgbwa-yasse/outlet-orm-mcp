@@ -1,0 +1,25 @@
+# Test files
+tests/
+test-fixtures/
+*.test.js
+
+# Documentation (keep only essential ones)
+CONTRIBUTING.md
+
+# Development files
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# CI/CD
+.github/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Logs
+logs/
+*.log
