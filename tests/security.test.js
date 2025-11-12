@@ -295,20 +295,21 @@ async function runAllTests() {
 }
 
 // Export for use in test frameworks
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    testTableNameInjection,
-    testColumnNameInjection,
-    testValidNames,
-    testSchemaCachePerformance,
-    testQueryTimeout,
-    testConnectionCleanup,
-    testGetDatabaseConfig,
-    runAllTests
-  };
-}
+export {
+  testTableNameInjection,
+  testColumnNameInjection,
+  testValidNames,
+  testSchemaCachePerformance,
+  testQueryTimeout,
+  testConnectionCleanup,
+  testGetDatabaseConfig,
+  runAllTests
+};
 
 // Run tests if called directly
-if (require.main === module) {
+// Note: import.meta.url check for ES modules
+const isMainModule = import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+if (isMainModule) {
   runAllTests().catch(console.error);
 }
+

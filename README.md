@@ -1,67 +1,67 @@
 # Outlet ORM MCP Server
 
-Un serveur MCP (Model Context Protocol) pour **générer**, **vérifier** et **gérer les données** des Models, Controllers et Migrations pour Outlet ORM.
+A Model Context Protocol (MCP) server for **generating**, **verifying**, and **managing data** for Models, Controllers, and Migrations in Outlet ORM.
 
-🔒 **Version 2.1.0** - Sécurité renforcée et optimisations de performance
+🔒 **Version 2.1.0** - Enhanced security and performance optimizations
 
-## 🚀 Fonctionnalités
+## 🚀 Features
 
-### 🎨 Génération de code
+### 🎨 Code Generation
 
-- **Models** : Génération automatique avec support des relations (hasOne, hasMany, belongsTo, belongsToMany, etc.)
-- **Controllers** : Création de controllers REST avec toutes les méthodes CRUD
-- **Migrations** : Génération de migrations avec gestion complète des colonnes et relations
+- **Models**: Automatic generation with relation support (hasOne, hasMany, belongsTo, belongsToMany, etc.)
+- **Controllers**: REST controller creation with all CRUD methods
+- **Migrations**: Migration generation with complete column and relation management
 
-### 🔍 Vérification et analyse
+### 🔍 Verification and Analysis
 
-- **Vérification de schéma** : Compare les Models avec la base de données réelle
-- **Validation des relations** : Vérifie la cohérence avec les clés étrangères
-- **État des migrations** : Suivi des migrations appliquées et en attente
-- **Analyse de Controllers** : Vérifie la qualité du code et les bonnes pratiques
-- **Vérification globale** : Analyse complète de la cohérence du projet
+- **Schema Verification**: Compares Models with actual database
+- **Relations Validation**: Verifies consistency with foreign keys
+- **Migration Status**: Tracks applied and pending migrations
+- **Controller Analysis**: Checks code quality and best practices
+- **Global Consistency Check**: Complete project consistency analysis
 
-[📖 **Documentation complète des outils de vérification**](./VERIFICATION_TOOLS.md)
+[📖 **Complete Verification Tools Documentation**](./VERIFICATION_TOOLS.md)
 
-### 💾 Opérations CRUD sur les données
+### 💾 CRUD Data Operations
 
-- **Consultation de données** : Query avec filtres, tri et pagination
-- **Création d'enregistrements** : Insert avec retour de l'ID généré
-- **Mise à jour** : Update sécurisé avec clause WHERE obligatoire
-- **Suppression** : Delete sécurisé avec clause WHERE obligatoire
-- **Requêtes SQL brutes** : Exécution de requêtes complexes (JOINs, agrégations)
-- **Inspection de schéma** : Analyse de structure de tables (colonnes, index)
+- **Data Query**: Query with filters, sorting, and pagination
+- **Record Creation**: Insert with generated ID return
+- **Update**: Secure update with mandatory WHERE clause
+- **Deletion**: Secure delete with mandatory WHERE clause
+- **Raw SQL Queries**: Execute complex queries (JOINs, aggregations)
+- **Schema Inspection**: Analyze table structure (columns, indexes)
 
-[📖 **Documentation complète des opérations CRUD**](./CRUD_OPERATIONS.md)
+[📖 **Complete CRUD Operations Documentation**](./CRUD_OPERATIONS.md)
 
-### 🔒 Sécurité et Performance (v2.1.0)
+### 🔒 Security and Performance (v2.1.0)
 
-- **Protection SQL Injection** : Requêtes paramétrées + validation stricte des identifiants
-- **Validation complète** : Tous les noms de tables et colonnes validés
-- **Cache de schémas** : TTL de 60s pour améliorer les performances jusqu'à 90%
-- **Timeout de requêtes** : Protection contre les blocages (30s par défaut)
-- **Gestion de connexion** : Fermeture propre et prévention des fuites
+- **SQL Injection Protection**: Parameterized queries + strict identifier validation
+- **Complete Validation**: All table and column names validated
+- **Schema Caching**: 60s TTL for up to 90% performance improvement
+- **Query Timeout**: Protection against blocking (30s default)
+- **Connection Management**: Clean closure and leak prevention
 
-[📖 **Rapport de sécurité complet**](./SECURITY_FIXES.md)
+[📖 **Complete Security Report**](./SECURITY_FIXES.md)
 
 ## 📦 Installation
 
 ```bash
-cd outletORMMCP
+cd outlet-orm-mcp
 npm install
 ```
 
 ## ⚙️ Configuration
 
-### Configuration Claude Desktop
+### Claude Desktop Configuration
 
-Ajoutez dans `claude_desktop_config.json` :
+Add to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "outlet-orm": {
       "command": "node",
-      "args": ["C:\\wamp64_New\\www\\packages\\outletORMMCP\\index.js"],
+      "args": ["C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"],
       "env": {
         "OUTLET_ORM_ROOT": "C:\\wamp64_New\\www\\packages\\outlet-orm",
         "DB_DRIVER": "mysql",
@@ -76,74 +76,80 @@ Ajoutez dans `claude_desktop_config.json` :
 }
 ```
 
-### Variables d'environnement
+### Environment Variables
 
-| Variable | Description | Requis | Par défaut |
-|----------|-------------|--------|------------|
-| `OUTLET_ORM_ROOT` | Chemin vers le projet Outlet ORM | **Oui** | - |
-| `DB_DRIVER` | Driver de base de données (`mysql`, `postgres`, `sqlite`) | Non* | - |
-| `DB_HOST` | Hôte de la base de données | Non* | - |
-| `DB_PORT` | Port de la base de données | Non* | - |
-| `DB_DATABASE` | Nom de la base de données | Non* | - |
-| `DB_USER` | Utilisateur de la base de données | Non* | - |
-| `DB_PASSWORD` | Mot de passe de la base de données | Non* | - |
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `OUTLET_ORM_ROOT` | Path to Outlet ORM project | **Yes** | - |
+| `DB_DRIVER` | Database driver (`mysql`, `postgres`, `sqlite`) | No* | - |
+| `DB_HOST` | Database host | No* | - |
+| `DB_PORT` | Database port | No* | - |
+| `DB_DATABASE` | Database name | No* | - |
+| `DB_USER` | Database user | No* | - |
+| `DB_PASSWORD` | Database password | No* | - |
 
-> *Requis uniquement pour les outils de vérification (verify_model_schema, verify_relations, etc.)
+> *Required only for verification tools (verify_model_schema, verify_relations, etc.)
 
-## 🛠️ Outils disponibles
+## 🛠️ Available Tools
 
-### Génération de code
+### Code Generation
 
-| Outil | Description |
-|-------|-------------|
-| `generate_model` | Génère un fichier Model avec relations |
-| `generate_controller` | Génère un Controller REST complet |
-| `generate_migration` | Génère une migration de table |
+| Tool | Description |
+|------|-------------|
+| `generate_model_file` | Generates a Model file with relations |
+| `generate_controller_file` | Generates a complete REST Controller |
+| `generate_migration_file` | Generates a table migration |
 
-### Vérification et analyse
+[📖 **Complete Code Generators Documentation**](./CODE_GENERATORS.md)
 
-| Outil | Description |
-|-------|-------------|
-| `verify_model_schema` | Vérifie la cohérence Model ↔ Base de données |
-| `verify_relations` | Valide les relations et clés étrangères |
-| `verify_migration_status` | Vérifie l'état des migrations |
-| `analyze_controller` | Analyse la qualité du Controller |
-| `check_consistency` | Vérification globale complète |
+### Verification and Analysis
 
-### Opérations CRUD
+| Tool | Description |
+|------|-------------|
+| `verify_model_schema` | Verifies Model ↔ Database consistency |
+| `verify_relations` | Validates relations and foreign keys |
+| `verify_migration_status` | Checks migration status |
+| `analyze_controller` | Analyzes Controller quality |
+| `check_consistency` | Complete global verification |
 
-| Outil | Description |
-|-------|-------------|
-| `query_data` | Interroge la base avec filtres, tri et pagination |
-| `create_record` | Crée un enregistrement (retourne l'ID) |
-| `update_record` | Met à jour des enregistrements (WHERE obligatoire) |
-| `delete_record` | Supprime des enregistrements (WHERE obligatoire) |
-| `execute_raw_sql` | Exécute des requêtes SQL brutes |
-| `get_table_schema` | Récupère la structure d'une table |
+[📖 **Complete Verification Tools Documentation**](./VERIFICATION_TOOLS.md)
 
-## 📖 Exemples d'utilisation
+### CRUD Operations
 
-### Génération d'un Model avec relations
+| Tool | Description |
+|------|-------------|
+| `query_data` | Queries database with filters, sorting, and pagination |
+| `create_record` | Creates a record (returns ID) |
+| `update_record` | Updates records (WHERE required) |
+| `delete_record` | Deletes records (WHERE required) |
+| `execute_raw_sql` | Executes raw SQL queries |
+| `get_table_schema` | Retrieves table structure |
 
-```text
-Crée un Model Post avec :
+[📖 **Complete CRUD Operations Documentation**](./CRUD_OPERATIONS.md)
+
+## 📖 Usage Examples
+
+### Generating a Model with Relations
+
+```plaintext
+Create a Post model with:
 - table posts
-- champs : title (string), content (text), user_id (integer), published_at (datetime)
-- relation belongsTo vers User
-- relation hasMany vers Comment
-- timestamps et softDeletes
+- fields: title (string), content (text), user_id (integer), published_at (datetime)
+- belongsTo relation to User
+- hasMany relation to Comment
+- timestamps and softDeletes
 ```
 
-### Génération d'un Controller
+### Generating a Controller
 
-```text
-Crée un Controller UserController pour le Model User avec toutes les méthodes CRUD
+```plaintext
+Create a UserController for the User Model with all CRUD methods
 ```
 
-### Génération d'une Migration
+### Generating a Migration
 
-```text
-Crée une migration create_users_table avec :
+```plaintext
+Create a create_users_table migration with:
 - id (primary key)
 - name (string 255)
 - email (string 255, unique)
@@ -152,41 +158,41 @@ Crée une migration create_users_table avec :
 - timestamps
 ```
 
-### Vérification de cohérence
+### Consistency Verification
 
-```text
-Vérifie la cohérence du Model User avec la base de données
+```plaintext
+Verify the User model consistency with the database
 ```
 
-```text
-Analyse les relations du Model Post et vérifie les clés étrangères
+```plaintext
+Analyze the Post model relations and verify foreign keys
 ```
 
-```text
-Fais une vérification complète du Model User, son Controller et ses migrations
+```plaintext
+Perform a complete verification of the User model, its Controller, and migrations
 ```
 
-### Opérations CRUD sur les données
+### CRUD Data Operations
 
-```text
-Récupère les 10 premiers utilisateurs actifs triés par date de création
+```plaintext
+Retrieve the first 10 active users sorted by creation date
 ```
 
-```text
-Inspecte la structure de la table users avant de générer le Model
+```plaintext
+Inspect the users table structure before generating the Model
 ```
 
-```text
-Analyse la répartition des données pour planifier une migration
+```plaintext
+Analyze data distribution to plan a migration
 ```
 
-[Voir plus d'exemples dans VERIFICATION_TOOLS.md](./VERIFICATION_TOOLS.md)
+[See more examples in VERIFICATION_TOOLS.md](./VERIFICATION_TOOLS.md)
 
-[Voir plus d'exemples CRUD dans CRUD_OPERATIONS.md](./CRUD_OPERATIONS.md)
+[See more CRUD examples in CRUD_OPERATIONS.md](./CRUD_OPERATIONS.md)
 
-## 📂 Structure des fichiers générés
+## 📂 Generated File Structure
 
-```
+```plaintext
 outlet-orm/
 ├── models/
 │   ├── User.js
@@ -200,74 +206,75 @@ outlet-orm/
         └── 20240315_120500_create_posts_table.js
 ```
 
-## 🔍 Fonctionnalités avancées
+## 🔍 Advanced Features
 
-### Support complet des relations
+### Complete Relation Support
 
-- ✅ `hasOne` - Relation un-à-un
-- ✅ `hasMany` - Relation un-à-plusieurs
-- ✅ `belongsTo` - Relation inverse
-- ✅ `belongsToMany` - Relation plusieurs-à-plusieurs
-- ✅ `hasOneThrough` - Relation via table intermédiaire
-- ✅ `hasManyThrough` - Relation via table intermédiaire
-- ✅ `morphOne` / `morphMany` - Relations polymorphes
+- ✅ `hasOne` - One-to-one relation
+- ✅ `hasMany` - One-to-many relation
+- ✅ `belongsTo` - Inverse relation
+- ✅ `belongsToMany` - Many-to-many relation
+- ✅ `hasOneThrough` - Relation through intermediate table
+- ✅ `hasManyThrough` - Relation through intermediate table
+- ✅ `morphOne` / `morphMany` - Polymorphic relations
 
-### Support des types de colonnes
+### Column Type Support
 
-Tous les types MySQL/PostgreSQL :
+All MySQL/PostgreSQL types:
 
-- Texte : `string`, `text`, `mediumText`, `longText`
-- Nombres : `integer`, `bigInteger`, `decimal`, `float`, `double`
-- Dates : `date`, `datetime`, `timestamp`, `time`, `year`
-- Booléens : `boolean`
-- JSON : `json`, `jsonb`
-- Et plus...
+- Text: `string`, `text`, `mediumText`, `longText`
+- Numbers: `integer`, `bigInteger`, `decimal`, `float`, `double`
+- Dates: `date`, `datetime`, `timestamp`, `time`, `year`
+- Booleans: `boolean`
+- JSON: `json`, `jsonb`
+- And more...
 
-### Validation et sécurité
+### Validation and Security
 
-- ✅ Détection de mass assignment vulnerabilities
-- ✅ Validation des noms de fichiers
-- ✅ Vérification des colonnes non protégées
-- ✅ Analyse de la gestion d'erreurs dans les Controllers
-- ✅ Détection de clés étrangères orphelines
+- ✅ Mass assignment vulnerability detection
+- ✅ Filename validation
+- ✅ Unguarded column verification
+- ✅ Error handling analysis in Controllers
+- ✅ Orphaned foreign key detection
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
 ### "OUTLET_ORM_ROOT is required"
 
-Assurez-vous d'avoir défini la variable d'environnement dans la configuration de Claude Desktop.
+Make sure you have defined the environment variable in Claude Desktop configuration.
 
 ### "Failed to connect to database"
 
-Vérifiez vos identifiants de connexion dans les variables d'environnement DB_*.
+Verify your connection credentials in the DB_* environment variables.
 
-### Problèmes de génération
+### Generation Issues
 
-- Vérifiez que les dossiers `models/`, `controllers/`, et `database/migrations/` existent
-- Vérifiez les permissions d'écriture
-- Consultez les logs pour plus de détails
+- Verify that the `models/`, `controllers/`, and `database/migrations/` directories exist
+- Check write permissions
+- Consult logs for more details
 
 ## 📚 Documentation
 
-- [Guide complet des outils de vérification](./VERIFICATION_TOOLS.md)
-- [Guide complet des opérations CRUD](./CRUD_OPERATIONS.md)
-- [Correctifs appliqués](./FIXES_APPLIED.md)
-- [Documentation Outlet ORM](https://github.com/votre-repo/outlet-orm)
+- [Complete Verification Tools Guide](./VERIFICATION_TOOLS.md)
+- [Complete CRUD Operations Guide](./CRUD_OPERATIONS.md)
+- [Complete Code Generators Guide](./CODE_GENERATORS.md)
+- [Applied Security Fixes](./SECURITY_FIXES.md)
+- [Outlet ORM Documentation](https://github.com/your-repo/outlet-orm)
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-Les contributions sont les bienvenues ! Consultez [CONTRIBUTING.md](./CONTRIBUTING.md) pour plus de détails.
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for more details.
 
-## 📄 Licence
+## 📄 License
 
 MIT
 
-## 🔗 Liens utiles
+## 🔗 Useful Links
 
 - [Model Context Protocol](https://modelcontextprotocol.io)
-- [Outlet ORM](https://github.com/votre-repo/outlet-orm)
+- [Outlet ORM](https://github.com/your-repo/outlet-orm)
 - [Claude Desktop](https://claude.ai/desktop)
 
 ---
 
-Développé avec ❤️ pour Outlet ORM
+Developed with ❤️ for Outlet ORM

@@ -1,30 +1,30 @@
-# Guide de démarrage rapide - Outlet ORM MCP
+# Quick Start Guide - Outlet ORM MCP
 
-Ce guide vous aidera à configurer et utiliser le serveur MCP Outlet ORM avec Claude Desktop.
+This guide will help you set up and use the Outlet ORM MCP Server with Claude Desktop.
 
-## Étape 1 : Installation
+## Step 1: Installation
 
 ```bash
-cd outletORMMCP
+cd outlet-orm-mcp
 npm install
 
-# Installer le driver de votre base de données
-npm install mysql2      # Pour MySQL/MariaDB
-# ou
-npm install pg          # Pour PostgreSQL
-# ou
-npm install sqlite3     # Pour SQLite
+# Install your database driver
+npm install mysql2      # For MySQL/MariaDB
+# or
+npm install pg          # For PostgreSQL
+# or
+npm install sqlite3     # For SQLite
 ```
 
-## Étape 2 : Configuration
+## Step 2: Configuration
 
-### Option A : Utiliser un fichier .env (Recommandé)
+### Option A: Use a .env file (Recommended)
 
 ```bash
 cp .env.example .env
 ```
 
-Éditez `.env` avec vos paramètres :
+Edit `.env` with your parameters:
 
 ```env
 DB_DRIVER=mysql
@@ -35,20 +35,20 @@ DB_USER=root
 DB_PASSWORD=secret
 ```
 
-### Option B : Configuration directe dans Claude Desktop
+### Option B: Direct Configuration in Claude Desktop
 
-Pas besoin de `.env`, les variables d'environnement seront définies dans la config de Claude.
+No need for `.env`, environment variables will be defined in Claude's config.
 
-## Étape 3 : Configuration de Claude Desktop
+## Step 3: Claude Desktop Configuration
 
-### Localisation du fichier de configuration
+### Configuration File Location
 
-- **macOS** : `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows** : `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-### Ajouter le serveur MCP
+### Add the MCP Server
 
-Ouvrez le fichier et ajoutez :
+Open the file and add:
 
 ```json
 {
@@ -56,21 +56,22 @@ Ouvrez le fichier et ajoutez :
     "outlet-orm": {
       "command": "node",
       "args": [
-        "/chemin/absolu/vers/outletORMMCP/index.js"
+        "/absolute/path/to/outlet-orm-mcp/index.js"
       ]
     }
   }
 }
 ```
 
-**Exemple Windows** :
+**Windows Example:**
+
 ```json
 {
   "mcpServers": {
     "outlet-orm": {
       "command": "node",
       "args": [
-        "C:\\wamp64_New\\www\\packages\\outletORMMCP\\index.js"
+        "C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"
       ],
       "env": {
         "DB_DRIVER": "mysql",
@@ -85,144 +86,157 @@ Ouvrez le fichier et ajoutez :
 }
 ```
 
-**Exemple macOS/Linux** :
+**macOS/Linux Example:**
+
 ```json
 {
   "mcpServers": {
     "outlet-orm": {
       "command": "node",
       "args": [
-        "/Users/username/projects/outletORMMCP/index.js"
+        "/Users/username/projects/outlet-orm-mcp/index.js"
       ]
     }
   }
 }
 ```
 
-**Note** : Si vous utilisez un fichier `.env`, vous n'avez pas besoin de la section `env` dans la config.
+**Note**: If you use a `.env` file, you don't need the `env` section in the config.
 
-## Étape 4 : Redémarrer Claude Desktop
+## Step 4: Restart Claude Desktop
 
-1. Fermez complètement Claude Desktop
-2. Relancez l'application
-3. Vérifiez la présence de l'icône 🔌 qui indique que le serveur MCP est connecté
+1. Completely close Claude Desktop
+2. Restart the application
+3. Check for the 🔌 icon indicating the MCP server is connected
 
-## Étape 5 : Tester
+## Step 5: Test
 
-Essayez ces commandes dans Claude Desktop :
+Try these commands in Claude Desktop:
 
-### Test de connexion
-```
-Connecte-toi à la base de données
-```
+### Connection Test
 
-### Lister les tables
-```
-Quelles tables sont disponibles dans la base de données ?
+```text
+Connect to the database
 ```
 
-### Créer un enregistrement
-```
-Crée un utilisateur avec le nom "Test User" et l'email "test@example.com" dans la table users
+### List Tables
+
+```text
+What tables are available in the database?
 ```
 
-### Lire des données
-```
-Récupère tous les utilisateurs de la table users
+### Create a Record
+
+```text
+Create a user with name "Test User" and email "test@example.com" in the users table
 ```
 
-### Requête avancée
-```
-Trouve tous les utilisateurs avec le statut "active", triés par date de création, limite à 10 résultats
+### Read Data
+
+```text
+Get all users from the users table
 ```
 
-## Exemples d'utilisation avancée
+### Advanced Query
 
-### Eager Loading (charger des relations)
+```text
+Find all users with status "active", sorted by creation date, limit to 10 results
 ```
-Récupère tous les utilisateurs avec leurs posts et profils
+
+## Advanced Usage Examples
+
+### Eager Loading (load relations)
+
+```text
+Get all users with their posts and profiles
 ```
 
 ### Pagination
-```
-Récupère la page 2 des utilisateurs, 15 par page
+
+```text
+Get page 2 of users, 15 per page
 ```
 
-### Compter
-```
-Combien d'utilisateurs ont le statut "pending" ?
+### Count
+
+```text
+How many users have status "pending"?
 ```
 
-### Mise à jour bulk
-```
-Mets à jour tous les utilisateurs avec le statut "pending" vers "active"
+### Bulk Update
+
+```text
+Update all users with status "pending" to "active"
 ```
 
-### Insertion multiple
-```
-Insère ces 3 utilisateurs dans la table users :
+### Multiple Insert
+
+```text
+Insert these 3 users into the users table:
 - Alice (alice@example.com)
 - Bob (bob@example.com)
 - Charlie (charlie@example.com)
 ```
 
-### SQL brut
-```
-Exécute cette requête : SELECT COUNT(*) as total FROM users WHERE created_at > '2024-01-01'
-```
+### Raw SQL
 
-### Incrément atomique
-```
-Incrémente le champ "login_count" de 1 pour l'utilisateur avec l'ID 5
+```text
+Execute this query: SELECT COUNT(*) as total FROM users WHERE created_at > '2024-01-01'
 ```
 
-## Dépannage
+### Atomic Increment
 
-### Le serveur ne se connecte pas
+```text
+Increment the "login_count" field by 1 for user with ID 5
+```
 
-1. Vérifiez que Node.js est installé : `node --version`
-2. Vérifiez que le chemin dans la config est correct (absolu)
-3. Consultez les logs de Claude Desktop
-4. Testez le serveur manuellement : `node index.js` (il devrait rester en attente)
+## Troubleshooting
 
-### Erreur de connexion à la base de données
+### Server Won't Connect
 
-1. Vérifiez vos paramètres dans `.env` ou dans la config Claude
-2. Assurez-vous que le driver est installé (`mysql2`, `pg`, ou `sqlite3`)
-3. Testez la connexion avec un client de base de données classique
-4. Vérifiez que la base de données est démarrée
+1. Check that Node.js is installed: `node --version`
+2. Verify the path in config is correct (absolute)
+3. Check Claude Desktop logs
+4. Test the server manually: `node index.js` (should remain waiting)
 
-### Le serveur démarre mais les outils ne fonctionnent pas
+### Database Connection Error
 
-1. Essayez de vous connecter d'abord : "Connecte-toi à la base de données"
-2. Vérifiez que les tables existent : "Liste les tables"
-3. Consultez les erreurs retournées par les outils
+1. Check your parameters in `.env` or Claude config
+2. Ensure the driver is installed (`mysql2`, `pg`, or `sqlite3`)
+3. Test the connection with a standard database client
+4. Verify the database is running
 
-### Tester le serveur en dehors de Claude
+### Server Starts but Tools Don't Work
 
-Utilisez l'inspecteur MCP :
+1. Try connecting first: "Connect to the database"
+2. Check that tables exist: "List the tables"
+3. Review errors returned by tools
+
+### Testing Server Outside Claude
+
+Use the MCP inspector:
 
 ```bash
 npx @modelcontextprotocol/inspector node index.js
 ```
 
-Cela ouvrira une interface web pour tester les outils manuellement.
+This will open a web interface to test tools manually.
 
 ## Support
 
-Pour obtenir de l'aide :
+For help:
 
-- Issues GitHub : https://github.com/omgbwa-yasse/outlet-orm/issues
-- Documentation Outlet ORM : https://github.com/omgbwa-yasse/outlet-orm
-- Documentation MCP : https://modelcontextprotocol.io
+- GitHub Issues: https://github.com/omgbwa-yasse/outlet-orm/issues
+- Outlet ORM Documentation: https://github.com/omgbwa-yasse/outlet-orm
+- MCP Documentation: https://modelcontextprotocol.io
 
-## Prochaines étapes
+## Next Steps
 
-Une fois que tout fonctionne, explorez :
+Once everything works, explore:
 
-1. Les migrations avec `outlet-migrate` (CLI)
-2. La définition de modèles personnalisés
-3. Les relations entre tables
-4. Les opérations avancées (joins, agrégations, etc.)
+1. Migrations with `outlet-migrate` (CLI)
+2. Defining custom models
+3. Table relationships
+4. Advanced operations (joins, aggregations, etc.)
 
-Bon développement ! 🚀
+Happy coding! 🚀

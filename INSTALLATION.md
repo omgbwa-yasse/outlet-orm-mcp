@@ -1,77 +1,78 @@
-# 🎉 Outlet ORM MCP Server - Installation terminée !
+# 🎉 Outlet ORM MCP Server - Installation Complete!
 
-Le serveur MCP pour Outlet ORM a été créé avec succès dans `outletORMMCP/`.
+The MCP Server for Outlet ORM has been successfully created in `outlet-orm-mcp/`.
 
-## 📁 Structure du projet
+## 📁 Project Structure
 
+```text
+outlet-orm-mcp/
+├── index.js                              # Main MCP server
+├── package.json                          # npm configuration
+├── .env.example                          # Configuration example
+├── .gitignore                           # Files to ignore
+├── LICENSE                              # MIT License
+├── README.md                            # Complete documentation
+├── QUICKSTART.md                        # Quick start guide
+├── CONTRIBUTING.md                      # Contribution guide
+├── CHANGELOG.md                         # Version history
+├── EXAMPLES.js                          # Usage examples
+└── claude_desktop_config.example.json   # Claude Desktop config example
 ```
-outletORMMCP/
-├── index.js                              # Serveur MCP principal
-├── package.json                          # Configuration npm
-├── .env.example                          # Exemple de configuration
-├── .gitignore                           # Fichiers à ignorer
-├── LICENSE                              # Licence MIT
-├── README.md                            # Documentation complète
-├── QUICKSTART.md                        # Guide de démarrage rapide
-├── CONTRIBUTING.md                      # Guide de contribution
-├── CHANGELOG.md                         # Historique des versions
-├── EXAMPLES.js                          # Exemples d'utilisation
-└── claude_desktop_config.example.json   # Config exemple Claude Desktop
-```
 
-## ✅ Installation terminée
+## ✅ Installation Complete
 
-Les dépendances ont été installées :
+Dependencies have been installed:
+
 - ✅ @modelcontextprotocol/sdk
 - ✅ outlet-orm
 - ✅ dotenv
 
-## 🚀 Prochaines étapes
+## 🚀 Next Steps
 
-### 1. Installer le driver de base de données
+### 1. Install Database Driver
 
-Selon votre SGBD, installez le driver approprié :
+Depending on your DBMS, install the appropriate driver:
 
 ```bash
-cd c:\wamp64_New\www\packages\outletORMMCP
+cd c:\wamp64_New\www\packages\outlet-orm-mcp
 
 # MySQL/MariaDB
 npm install mysql2
 
-# OU PostgreSQL
+# OR PostgreSQL
 npm install pg
 
-# OU SQLite
+# OR SQLite
 npm install sqlite3
 ```
 
-### 2. Configurer la base de données
+### 2. Configure Database
 
 ```bash
-# Copier le fichier d'exemple
+# Copy example file
 cp .env.example .env
 
-# Éditer .env avec vos paramètres
+# Edit .env with your parameters
 ```
 
-### 3. Tester le serveur
+### 3. Test the Server
 
 ```bash
-# Test manuel (le serveur doit rester en attente)
+# Manual test (server should remain waiting)
 node index.js
 
-# Ou avec l'inspecteur MCP
+# Or with MCP inspector
 npx @modelcontextprotocol/inspector node index.js
 ```
 
-### 4. Configurer Claude Desktop
+### 4. Configure Claude Desktop
 
-Éditez votre configuration Claude Desktop :
+Edit your Claude Desktop configuration:
 
-**Windows** : `%APPDATA%\Claude\claude_desktop_config.json`
-**macOS** : `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-Ajoutez :
+Add:
 
 ```json
 {
@@ -79,101 +80,97 @@ Ajoutez :
     "outlet-orm": {
       "command": "node",
       "args": [
-        "C:\\wamp64_New\\www\\packages\\outletORMMCP\\index.js"
+        "C:\\wamp64_New\\www\\packages\\outlet-orm-mcp\\index.js"
       ]
     }
   }
 }
 ```
 
-### 5. Redémarrer Claude Desktop
+### 5. Restart Claude Desktop
 
-Fermez complètement et relancez Claude Desktop.
+Close completely and restart Claude Desktop.
 
-## 🔧 Outils MCP disponibles
+## 🔧 Available MCP Tools
 
-Le serveur expose **19 outils** pour interagir avec votre base de données :
+The server exposes **14 tools** to interact with your database:
 
-### Connexion
-- `connect_database` - Se connecter à la BDD
-- `disconnect_database` - Se déconnecter
+### Code Generators
 
-### CRUD
-- `find_by_id` - Trouver par ID
-- `get_all` - Récupérer tous les enregistrements
-- `create_record` - Créer un enregistrement
-- `update_record` - Mettre à jour
-- `delete_record` - Supprimer
+- `generate_model_file` - Generate Outlet ORM model
+- `generate_controller_file` - Generate controller
+- `generate_migration_file` - Generate migration
 
-### Query Builder
-- `query_builder` - Requêtes avancées (WHERE, JOIN, ORDER, LIMIT, etc.)
+### Verification Tools
 
-### Utilitaires
-- `list_tables` - Lister les tables
-- `describe_table` - Structure d'une table
-- `execute_raw_query` - SQL brut
+- `verify_model_schema` - Verify model/table consistency
+- `verify_relations` - Check foreign key relationships
+- `verify_migration_status` - Check migration state
+- `analyze_controller` - Analyze controller file
+- `check_consistency` - Full project consistency check
 
-### Bulk
-- `bulk_insert` - Insertion multiple
-- `bulk_update` - Mise à jour multiple
+### CRUD Operations
 
-### Agrégations
-- `aggregate` - Incrément/décrément atomique
-
-### Migrations
-- `list_migrations` - Lister les migrations
+- `query_data` - Query with filters, sorting, pagination
+- `create_record` - Create new records
+- `update_record` - Update existing records
+- `delete_record` - Delete records
+- `execute_raw_sql` - Execute raw SQL
+- `get_table_schema` - Get table structure
 
 ## 📖 Documentation
 
-- **README.md** - Documentation complète
-- **QUICKSTART.md** - Guide de démarrage rapide
-- **EXAMPLES.js** - Exemples d'utilisation détaillés
-- **CONTRIBUTING.md** - Guide de contribution
+- **README.md** - Complete documentation
+- **QUICKSTART.md** - Quick start guide
+- **CRUD_OPERATIONS.md** - CRUD tools documentation
+- **VERIFICATION_TOOLS.md** - Verification tools documentation
+- **CODE_GENERATORS.md** - Generator tools documentation
+- **CONTRIBUTING.md** - Contribution guide
 
-## 💡 Exemples de requêtes pour Claude
+## 💡 Example Queries for Claude
 
-Une fois configuré dans Claude Desktop, essayez :
+Once configured in Claude Desktop, try:
 
-```
-Connecte-toi à la base de données
-```
-
-```
-Liste toutes les tables
+```text
+Generate a model for the users table
 ```
 
-```
-Récupère tous les utilisateurs
-```
-
-```
-Crée un utilisateur avec le nom "Test" et l'email "test@example.com"
+```text
+Verify the User model schema
 ```
 
+```text
+Query all active users sorted by creation date
 ```
-Trouve tous les utilisateurs actifs triés par date de création
+
+```text
+Create a user with name "Test" and email "test@example.com"
 ```
 
-## 🐛 Dépannage
+```text
+Check consistency between models, migrations, and database
+```
 
-Si le serveur ne fonctionne pas :
+## 🐛 Troubleshooting
 
-1. Vérifiez que Node.js >= 18 est installé : `node --version`
-2. Vérifiez que le driver de BDD est installé
-3. Vérifiez le fichier `.env`
-4. Consultez les logs de Claude Desktop
-5. Testez avec l'inspecteur : `npx @modelcontextprotocol/inspector node index.js`
+If the server doesn't work:
 
-## 🔗 Liens utiles
+1. Check that Node.js >= 18 is installed: `node --version`
+2. Verify the database driver is installed
+3. Check the `.env` file
+4. Check Claude Desktop logs
+5. Test with inspector: `npx @modelcontextprotocol/inspector node index.js`
+
+## 🔗 Useful Links
 
 - [Outlet ORM](https://github.com/omgbwa-yasse/outlet-orm)
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [Claude Desktop](https://claude.ai/download)
 
-## 📝 Licence
+## 📝 License
 
-MIT License - Voir le fichier LICENSE
+MIT License - See LICENSE file
 
 ---
 
-**Bon développement avec Outlet ORM MCP ! 🚀**
+**Happy coding with Outlet ORM MCP! 🚀**

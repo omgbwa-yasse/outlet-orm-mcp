@@ -1,75 +1,76 @@
-# Outlet ORM MCP Server - Guide de contribution
+# Outlet ORM MCP Server - Contribution Guide
 
-Merci de votre intérêt pour contribuer au serveur MCP Outlet ORM !
+Thank you for your interest in contributing to the Outlet ORM MCP Server!
 
-## Comment contribuer
+## How to Contribute
 
-### Signaler des bugs
+### Reporting Bugs
 
-Si vous trouvez un bug, veuillez ouvrir une issue avec :
+If you find a bug, please open an issue with:
 
-1. Une description claire du problème
-2. Les étapes pour reproduire
-3. Le comportement attendu vs le comportement observé
-4. Votre environnement (OS, version de Node.js, base de données)
-5. Les logs d'erreur pertinents
+1. A clear description of the problem
+2. Steps to reproduce
+3. Expected behavior vs observed behavior
+4. Your environment (OS, Node.js version, database)
+5. Relevant error logs
 
-### Proposer des fonctionnalités
+### Proposing Features
 
-Pour proposer une nouvelle fonctionnalité :
+To propose a new feature:
 
-1. Vérifiez qu'elle n'existe pas déjà dans les issues
-2. Ouvrez une issue décrivant :
-   - Le cas d'usage
-   - Le comportement souhaité
-   - Des exemples d'utilisation
-   - Pourquoi c'est utile
+1. Check that it doesn't already exist in the issues
+2. Open an issue describing:
+   - The use case
+   - The desired behavior
+   - Usage examples
+   - Why it's useful
 
-### Soumettre des Pull Requests
+### Submitting Pull Requests
 
-1. Forkez le projet
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Pushez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Standards de code
+### Code Standards
 
-- Utilisez des noms de variables descriptifs
-- Commentez le code complexe
-- Suivez les conventions JavaScript modernes (ES6+)
-- Assurez-vous que le code fonctionne avec Node.js >= 18
+- Use descriptive variable names
+- Comment complex code
+- Follow modern JavaScript conventions (ES6+)
+- Ensure code works with Node.js >= 18
 
-### Tester vos changements
+### Testing Your Changes
 
-Avant de soumettre :
+Before submitting:
 
-1. Testez avec l'inspecteur MCP :
+1. Test with the MCP inspector:
+
    ```bash
    npx @modelcontextprotocol/inspector node index.js
    ```
 
-2. Testez avec Claude Desktop
-3. Vérifiez que tous les outils fonctionnent
-4. Testez avec différentes bases de données si possible
+2. Test with Claude Desktop
+3. Verify that all tools work
+4. Test with different databases if possible
 
 ### Documentation
 
-Si vous ajoutez une fonctionnalité :
+If you add a feature:
 
-- Mettez à jour le README.md
-- Ajoutez des exemples dans EXAMPLES.js
-- Mettez à jour CHANGELOG.md
+- Update README.md
+- Add examples in EXAMPLES.js
+- Update CHANGELOG.md
 
-## Code de conduite
+## Code of Conduct
 
-- Soyez respectueux et professionnel
-- Acceptez les critiques constructives
-- Concentrez-vous sur ce qui est meilleur pour la communauté
-- Faites preuve d'empathie envers les autres
+- Be respectful and professional
+- Accept constructive criticism
+- Focus on what's best for the community
+- Show empathy towards others
 
-## Questions ?
+## Questions?
 
-N'hésitez pas à ouvrir une issue pour poser des questions !
+Don't hesitate to open an issue to ask questions!
 
-Merci pour votre contribution ! 🙏
+Thank you for your contribution! 🙏
